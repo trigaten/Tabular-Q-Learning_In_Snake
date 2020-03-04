@@ -1,4 +1,4 @@
-from point import Point
+from Point import Point
 import math
 from copy import copy, deepcopy
 
