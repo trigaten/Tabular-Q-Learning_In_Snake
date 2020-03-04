@@ -1,6 +1,22 @@
+"""A bunch of code for doing combinatorics problems on the snake game (location of food is included)"""
 from Point import Point
 import math
 from copy import copy, deepcopy
+
+"""Loops through all start positions and returns #of possible states for that size of a board"""
+def computeStatesFromSize(size):
+    counter = 0
+    # i counter is how many snake parts in addition to the head there are
+    for i in range(0, int(math.pow(size, 2))):
+        print("Snake length: " + str(i))
+        for x in range(size):
+            for y in range(size):
+                board = makeBoard(size)
+                board[x][y] = 1
+                statesAtLength = computeStatesFromHead(board, Point(x, y), i)
+                counter+= statesAtLength
+        print(counter)
+    return counter
 
 """Takes a 2d array of 1s and 0s and returns the amount of 0s
 -essentially the different places the food could be"""
@@ -50,7 +66,10 @@ def makeBoard(size):
     arr = [[0 for i in range(cols)] for j in range(rows)] 
     return arr
 
-"""takes the size of the snake and the board size and returns number of possible positions for this setup"""
+
+
+
+"""NON-Essential: takes the size of the snake and the board size and returns number of possible positions for this setup"""
 def computeStatesFromSingleSizes(snakeSize, boardSize):
     counter = 0
     for x in range(boardSize):
@@ -60,23 +79,3 @@ def computeStatesFromSingleSizes(snakeSize, boardSize):
                 statesAtLength = computeStatesFromHead(board, Point(x, y), snakeSize)
                 counter+= statesAtLength
     return counter
-
-"""Loops through all start positions and returns #of possible states for that size of a board"""
-def computeStatesFromSize(size):
-    counter = 0
-    # i counter is how many snake parts in addition to the head there are
-    for i in range(0, int(math.pow(size, 2))):
-        print("Snake length: " + str(i))
-        for x in range(size):
-            for y in range(size):
-                board = makeBoard(size)
-                board[x][y] = 1
-                statesAtLength = computeStatesFromHead(board, Point(x, y), i)
-                counter+= statesAtLength
-        print(counter)
-    return counter
-
-
-# print(computeStatesFromSingleSizes(3, 5))
-
-print(computeStatesFromSize(5))
