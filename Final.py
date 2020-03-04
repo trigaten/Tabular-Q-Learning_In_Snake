@@ -6,9 +6,8 @@ print(NSScreen.mainScreen().frame())
 
 SCREEN_WIDTH = NSScreen.mainScreen().frame().size.width
 SCREEN_HEIGHT = NSScreen.mainScreen().frame().size.height
-SCREEN_TITLE = "Bouncing Rectangle Example"
+SCREEN_TITLE = "Snake"
 
-theWorld = World.World(Point.Point(SCREEN_WIDTH, SCREEN_HEIGHT))
 
 
 def on_draw(delta_time):
