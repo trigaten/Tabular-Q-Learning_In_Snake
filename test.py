@@ -1,3 +1,7 @@
+import Combinatorics as comb
+import numpy as np
 
-if 5 is not 5:
-    print("hello")
+def getLength(board):
+        return np.amax(board)
+
+print(getLength(comb.makeBoard(2)))
