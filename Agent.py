@@ -8,6 +8,7 @@ class Agent:
     states = []
     values = []
     statesByLength = []
+    # stateToScoreTable = {}
     
     """"""
     def __init__(self, boardSize, agentType):
@@ -38,8 +39,8 @@ class Agent:
             curState = self.states[i]
             curValue = self.states[i]
             head = self.getHeadLocation(self.states[i])
-            # print("heaad")
-            # print(head)
+            print("heaad")
+            print(str(head.x) + " " + str(head.y))
             print("curBoard")
             print(curBoard)
             dict = {}
@@ -48,10 +49,11 @@ class Agent:
             right = []
             up = []
             down = []
-            if head.x-1 >= 0:
+            # left - is head.y bc head stores x, y point but it is actually in r, c format and subtracting from column goes to left
+            if head.y-1 >= 0:
                 print("left")
                 nextBoard = deepcopy(curBoard)
-                if curBoard[head.x-1][head.y] is 0 :
+                if curBoard[head.x][head.y-1] is 0 :
                     # moving snake to next position after not eating food
                     for x in range(len(nextBoard)):
                         for y in range(len(nextBoard[0])):
@@ -59,8 +61,9 @@ class Agent:
                                 nextBoard[x][y] = 0
                             elif nextBoard[x][y] > 0:
                                 nextBoard[x][y] += 1
+                    nextBoard[head.x][head.y-1] = 1
                     left.append(nextBoard)
-                elif curBoard[head.x-1][head.y] is -1:
+                elif curBoard[head.x][head.y-1] is -1:
                     # moving snake to next position after eating food
                     for x in range(len(nextBoard)):
                         for y in range(len(nextBoard[0])):
@@ -74,26 +77,107 @@ class Agent:
                     ps = comb.getPossibleFoodStates(nextBoard)
                     for i in ps:
                         left.append(i)
-            if head.x+1 < len(curBoard):
+                        
+            # right - is head.y bc head stores x, y point but it is actually in r, c format and adding to column goes to right
+            if head.y+1 < len(curBoard):
+                nextBoard = deepcopy(curBoard)
                 print("right")
-                if curBoard[head.x+1][head.y] is 0:
-                    pass
-                elif curBoard[head.x+1][head.y] is -1:
-                    pass
-                
-            if head.y-1 >= 0:
-                print("up")
-                if curBoard[head.x][head.y-1] is 0:
-                    pass
-                elif curBoard[head.x][head.y-1] is -1:
-                    pass
-                
-            if head.y+1 < len(curBoard[0]):
-                print("down")
                 if curBoard[head.x][head.y+1] is 0:
-                    pass
+                    # moving snake to next position after not eating food
+                    for x in range(len(nextBoard)):
+                        for y in range(len(nextBoard[0])):
+                            if nextBoard[x][y] == self.getLength(nextBoard):
+                                nextBoard[x][y] = 0
+                            elif nextBoard[x][y] > 0:
+                                nextBoard[x][y] += 1
+                    nextBoard[head.x][head.y+1] = 1
+                    right.append(nextBoard)
                 elif curBoard[head.x][head.y+1] is -1:
+                    # moving snake to next position after eating food
+                    for x in range(len(nextBoard)):
+                        for y in range(len(nextBoard[0])):
+                            if nextBoard[x][y] == self.getLength(nextBoard):
+                                nextBoard[x][y] += 1
+                            elif nextBoard[x][y] > 0:
+                                nextBoard[x][y] += 1
+                            elif nextBoard[x][y] == -1:
+                                nextBoard[x][y] = 1
+                    # possbile stochastic next states (just different placements of the food)
+                    ps = comb.getPossibleFoodStates(nextBoard)
+                    for i in ps:
+                        right.append(i)
+
+            # up - is head.x bc head stores x, y point but it is actually in r, c format and subtracting from row goes up
+            if head.x-1 >= 0:
+                nextBoard = deepcopy(curBoard)
+                print("up")
+                if curBoard[head.x-1][head.y] is 0:
+                    # moving snake to next position after not eating food
+                    for x in range(len(nextBoard)):
+                        for y in range(len(nextBoard[0])):
+                            if nextBoard[x][y] == self.getLength(nextBoard):
+                                nextBoard[x][y] = 0
+                            elif nextBoard[x][y] > 0:
+                                nextBoard[x][y] += 1
+                    nextBoard[head.x-1][head.y] = 1
+                    up.append(nextBoard)
+                elif curBoard[head.x-1][head.y] is -1:
+                    # moving snake to next position after eating food
+                    for x in range(len(nextBoard)):
+                        for y in range(len(nextBoard[0])):
+                            if nextBoard[x][y] == self.getLength(nextBoard):
+                                nextBoard[x][y] += 1
+                            elif nextBoard[x][y] > 0:
+                                nextBoard[x][y] += 1
+                            elif nextBoard[x][y] == -1:
+                                nextBoard[x][y] = 1
+                    # possbile stochastic next states (just different placements of the food)
+                    ps = comb.getPossibleFoodStates(nextBoard)
+                    for i in ps:
+                        up.append(i)
+
+            # down - is head.x bc head stores x, y point but it is actually in r, c format and adding tp column goes down
+            if head.x+1 < len(curBoard[0]):
+                nextBoard = deepcopy(curBoard)
+                print("down")
+                if curBoard[head.x+1][head.y] is 0:
+                    # moving snake to next position after not eating food
+                    for x in range(len(nextBoard)):
+                        for y in range(len(nextBoard[0])):
+                            if nextBoard[x][y] == self.getLength(nextBoard):
+                                nextBoard[x][y] = 0
+                            elif nextBoard[x][y] > 0:
+                                nextBoard[x][y] += 1
+                    nextBoard[head.x+1][head.y] = 1
+                    down.append(nextBoard)
+                elif curBoard[head.x+1][head.y] is -1:
+                    # moving snake to next position after eating food
+                    for x in range(len(nextBoard)):
+                        for y in range(len(nextBoard[0])):
+                            if nextBoard[x][y] == self.getLength(nextBoard):
+                                nextBoard[x][y] += 1
+                            elif nextBoard[x][y] > 0:
+                                nextBoard[x][y] += 1
+                            elif nextBoard[x][y] == -1:
+                                nextBoard[x][y] = 1
+                    # possbile stochastic next states (just different placements of the food)
+                    ps = comb.getPossibleFoodStates(nextBoard)
+                    for i in ps:
+                        down.append(i)
+            print("------")
+            print("left")
+            print(left)
+            print("right")
+            print(right)
+            print("up")
+            print(up)
+            print("down")
+            print(down)
+            # using inherent nature of empty list evaluates to false
+            if left:
+                for i in left:
                     pass
+
             
 
 
@@ -130,6 +214,8 @@ a.valueIteration()
 # print(len(dd))
 # for i in dd:
 #     print(a.statesByLength[i.x][i.y])
+bo = comb.makeBoard(2)
+
 
 
 

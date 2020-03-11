@@ -187,4 +187,4 @@ def getStatesFromSize(size, foodPos=True):
     return list
 
 
-print(computeStatesFromSize(5))
+# print(computeStatesFromSize(5))

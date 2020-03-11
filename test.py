@@ -1,2 +1,3 @@
-if [0, 0,0] < 1:
-    print("hiii")
+d = {}
+d.add("ee", 4)
+print(d.get("ee"))
