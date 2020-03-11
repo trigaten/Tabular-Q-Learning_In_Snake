@@ -185,3 +185,6 @@ def getStatesFromSize(size, foodPos=True):
         for p in range(len(miniList)):
             list.append(miniList[p])
     return list
+
+
+print(computeStatesFromSize(5))
