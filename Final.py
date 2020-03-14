@@ -1,11 +1,21 @@
 import arcade
-import Combinatorics
+import Agent
 # from AppKit import NSScreen #library that gets screen width and height
 # print(NSScreen.mainScreen().frame())
 
+# general set up
 SCREEN_WIDTH = 1440#NSScreen.mainScreen().frame().size.width
 SCREEN_HEIGHT = 900#NSScreen.mainScreen().frame().size.height
 SCREEN_TITLE = "Bouncing Rectangle Example"
+# agent set up
+boardSize = 2
+agent = Agent.Agent(2, "V-Iteration", 0.9)
+change = 1000
+# performing value iteration
+while change > 0.001:
+    change = agent.valueIteration()
+    print("change " + str(change))
+
 p = 0
 
 # def drawMap(map, squareSize):
@@ -32,6 +42,17 @@ def on_draw(delta_time):
             arcade.draw_circle_outline(100, 100, 100, arcade.color.AIR_SUPERIORITY_BLUE)
     p+=10
     # arcade.draw_circle_outline(100, 100, 100, arcade.color.AIR_SUPERIORITY_BLUE)
+    # Draw an rectangle outline
+    arcade.draw_text("draw_rect", 243, 3, arcade.color.BLACK, 10)
+    arcade.draw_rectangle_outline(295, 100, 45, 65,
+                                arcade.color.BRITISH_RACING_GREEN)
+    arcade.draw_rectangle_outline(295, 160, 20, 45,
+                                arcade.color.BRITISH_RACING_GREEN, 3, 45)
+
+    # Draw a filled in rectangle
+    arcade.draw_text("draw_filled_rect", 363, 3, arcade.color.BLACK, 10)
+    arcade.draw_rectangle_filled(420, 100, 45, 65, arcade.color.BLUSH)
+    arcade.draw_rectangle_filled(420, 160, 20, 40, arcade.color.BLUSH, 45)
 
 def main():
     # Open up our window
