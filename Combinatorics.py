@@ -161,6 +161,26 @@ def computeStatesFromSingleSizes(numToPlace, boardSize, foodPos=True):
                 counter+= statesAtLength
     return counter
 
+"""takes board size and computes theoretical upper limit of state space"""
+def computeUpperStateBound(size):
+    total = 0
+    sqL = int(math.pow(size, 2))
+    for i in range(1, sqL+1):
+        # print(i)
+        innerTotal = max(1, sqL - i)
+        for j in range(1, i+1):
+            # print(j)
+            if j == 1:
+                innerTotal *= sqL
+            elif j == 2:
+                innerTotal *= 4
+            else:
+                innerTotal *= 3
+        # print(innerTotal)
+        total+=innerTotal
+    return total
+            
+
 """
 RETURNS 3d array - an array of states (2d arrays of size*size) possible """
 def getStatesFromSize(size, foodPos=True):
@@ -187,4 +207,4 @@ def getStatesFromSize(size, foodPos=True):
     return list
 
 
-# print(computeStatesFromSize(5))
+
