@@ -12,7 +12,7 @@ SCREEN_HEIGHT = 900#NSScreen.mainScreen().frame().size.height
 SCREEN_TITLE = "Snake Game"
 # setting up board stuff
 SQUARE_SIZE = 100
-GAME_SIZE = 3
+GAME_SIZE = 4
 board = comb.makeBoard(GAME_SIZE)
 FOOD_COLOR = (0, 120, 200)
 # puts head at random location and food opposite that
@@ -30,7 +30,7 @@ while not found:
 
 
 # setup agent
-a = Agent.Agent(3, "V-Iteration", 0.9)
+a = Agent.Agent(GAME_SIZE, "V-Iteration", 0.9)
 # # p = a.getStatesBySize(comb.getStatesFromSize(2))
 change = 1000
 while change > 0.01:
@@ -117,6 +117,8 @@ def on_draw(delta_time):
                     Xrand = random.randrange(GAME_SIZE)
                     Yrand = random.randrange(GAME_SIZE)
                 board[Xrand][Yrand] = -1
+    if a.getLength(board) == math.pow(len(board), 2):
+        Still_Going = False
     print(board)
     drawBoard(board)
     
