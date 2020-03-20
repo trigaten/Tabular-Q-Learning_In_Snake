@@ -3,16 +3,25 @@ import Combinatorics as comb
 import random
 import Agent
 import math
+import numpy as np
 # from AppKit import NSScreen #library that gets screen width and height
 # print(NSScreen.mainScreen().frame())
 
 # general set up
+
 SCREEN_WIDTH = 1440#NSScreen.mainScreen().frame().size.width
 SCREEN_HEIGHT = 900#NSScreen.mainScreen().frame().size.height
 SCREEN_TITLE = "Snake Game"
 # setting up board stuff
 SQUARE_SIZE = 100
+
+# -------------------
+# CHANGE THIS INFO
 GAME_SIZE = 4
+states = None #"saves/states4.npy"
+values = None #"saves/values4.npy"
+# -------------------
+
 board = comb.makeBoard(GAME_SIZE)
 FOOD_COLOR = (0, 120, 200)
 # puts head at random location and food opposite that
@@ -21,6 +30,7 @@ Yrand = random.randrange(GAME_SIZE)
 board[Xrand][Yrand] = 1
 found = False
 Still_Going = True
+
 while not found:
     X2rand = random.randrange(GAME_SIZE)
     Y2rand = random.randrange(GAME_SIZE)
@@ -30,12 +40,17 @@ while not found:
 
 
 # setup agent
-a = Agent.Agent(GAME_SIZE, "V-Iteration", 0.9)
+a = Agent.Agent(GAME_SIZE, "V-Iteration", 0.9, states, values)
 # # p = a.getStatesBySize(comb.getStatesFromSize(2))
 change = 1000
-while change > 0.01:
-    change = a.valueIteration()
-    print("change " + str(change))
+if states is None and values is None:
+    # saves states at init
+    np.save("saves/states" + str(GAME_SIZE), a.getStates())
+    while change > 0.1:
+        change = a.valueIteration()
+        print("change " + str(change))
+        # saves values every complete iteration
+        np.save("saves/values" + str(GAME_SIZE), a.getValues())
 
 
 def on_draw(delta_time):
@@ -110,6 +125,7 @@ def on_draw(delta_time):
                                 board[head.x-1][head.y] = 1
                             elif next == 3:
                                 board[head.x+1][head.y] = 1
+            
             if willEat and a.getLength(board) < math.pow(len(board), 2):
                 Xrand = random.randrange(len(board))
                 Yrand = random.randrange(len(board))
@@ -126,9 +142,9 @@ def on_draw(delta_time):
 def drawBoard(board):
     xSpace = (SCREEN_WIDTH - SQUARE_SIZE * len(board))/2 + SQUARE_SIZE/2
     ySpace = (SCREEN_HEIGHT - SQUARE_SIZE * len(board[0]))/2 + SQUARE_SIZE/2
-    red = 10
-    green = 20
-    blue = 25
+    red = 1
+    green = 4
+    blue = 9
     for i in range(len(board)):
         for j in range(len(board[0])):
             if board[i][j] == -1:
@@ -136,7 +152,10 @@ def drawBoard(board):
             elif board[i][j] == 0:
                 arcade.draw_rectangle_filled(xSpace + i * 100, ySpace + j * 100, 100, 100, (255, 0, 0))
             else:
-                arcade.draw_rectangle_filled(xSpace + i * 100, ySpace + j * 100, 100, 100, (red * board[i][j], blue * board[i][j], green * board[i][j]))
+                arcade.draw_rectangle_filled(xSpace + i * 100, ySpace + j * 100, 100, 100, (red * (board[i][j]+1), blue * (board[i][j]+1), green * (board[i][j]+1)))
+                # if i-1 > 0 and board[i-1][j] > 0:
+                #     arcade.draw_line(i * 100 + 50, j * 100 + 50, (i-1) * 100 + 50, j * 100 + 50)
+                                
                 
             arcade.draw_rectangle_outline(xSpace + i * 100, ySpace + j * 100, 100, 100, (255, 0, 0))
             

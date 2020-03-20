@@ -1,7 +1,7 @@
 # Tabular-Q-Learning_In_Snake
 Finds optimal policies for a given square game board.
 
---Run displayTest and change the line GAME_SIZE = to whatever boardsize you would like. Boardsizes > 4 will essentially not 
+--Run displayTest and change the line GAME_SIZE = to whatever boardsize you would like. Boardsizes > 3 will essentially not 
 compute because state spaces explode according to the following table (Actual section):
 
 Possible states at a given board length, L

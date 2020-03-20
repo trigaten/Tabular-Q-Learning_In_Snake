@@ -12,18 +12,33 @@ class Agent:
     # stateToScoreTable = {}
     
     """"""
-    def __init__(self, boardSize, agentType, learningRate):
-        self.states = comb.getStatesFromSize(boardSize)
-        self.values = [0] * len(self.states)
+    def __init__(self, boardSize, agentType, learningRate, givenStates = None, givenValues = None):
+        if givenStates is not None:
+            self.states = np.load(givenStates).tolist()
+        else:
+            self.states = comb.getStatesFromSize(boardSize)
+
+        if givenValues is not None:
+            self.values = np.load(givenValues).tolist()
+        else:
+            self.values = [0] * len(self.states)
+
         self.statesByLength = self.getStatesByLength(self.states)
         self.learningRate = learningRate
         self.boardSize = boardSize
-        # sets the values of winning states
-        for i in range(len(self.states)):
-            curState = self.states[i]
-            if self.getLength(curState) == math.pow(boardSize, 2):
-                self.values[i] = 100
+
+        if givenStates is None:
+            # sets the values of winning states
+            for i in range(len(self.states)):
+                curState = self.states[i]
+                if self.getLength(curState) == math.pow(boardSize, 2):
+                    self.values[i] = 100
         
+        print("EEEEEEEEEEEEEEEEEEE")
+        print(self.states)
+        print("EEEEEEEEEEEEEEEEEEE")
+        print(self.values)
+        print("EEEEEEEEEEEEEEEEEEE")
             
     """takes 2d board and returns integer length of snake"""
     def getLength(self, board):
@@ -49,7 +64,7 @@ class Agent:
         print(self.values)
         maxChange = 0
         for i in range(len(self.states)):
-            
+            print("at state " + str(i))
 
             curBoard = self.states[i]
             if self.getLength(curBoard) != math.pow(len(curBoard), 2):
@@ -107,7 +122,6 @@ class Agent:
                 prevVal = self.values[i]
                 self.values[i] = adder * self.learningRate
                 maxChange = max(maxChange, abs(self.values[i]- prevVal))
-        print("--------")
         return maxChange
 
     """takes a 2d board and returns four arrays for lrud possible moves"""
@@ -119,6 +133,7 @@ class Agent:
         head = self.getHeadLocation(curBoard)
         # left - is head.y bc head stores x, y point but it is actually in r, c format and subtracting from column goes to left
         if head.y-1 >= 0:
+            length = self.getLength(curBoard)
             # print("left")
             hasEaten = False
             nextBoard = deepcopy(curBoard)
@@ -126,7 +141,7 @@ class Agent:
                 # moving snake to next position after not eating food
                 for x in range(len(nextBoard)):
                     for y in range(len(nextBoard[0])):
-                        if nextBoard[x][y] == self.getLength(nextBoard):
+                        if nextBoard[x][y] == length:
                             nextBoard[x][y] = 0
                         elif nextBoard[x][y] > 0:
                             nextBoard[x][y] += 1
@@ -163,16 +178,16 @@ class Agent:
                     left.append(nextBoard)
                     
 
-
         # right - is head.y bc head stores x, y point but it is actually in r, c format and adding to column goes to right
         if head.y+1 < len(curBoard):
+            length = self.getLength(curBoard)
             nextBoard = deepcopy(curBoard)
             hasEaten = False
             if curBoard[head.x][head.y+1] is 0:
                 # moving snake to next position after not eating food
                 for x in range(len(nextBoard)):
                     for y in range(len(nextBoard[0])):
-                        if nextBoard[x][y] == self.getLength(nextBoard):
+                        if nextBoard[x][y] == length:
                             nextBoard[x][y] = 0
                         elif nextBoard[x][y] > 0:
                             nextBoard[x][y] += 1
@@ -213,20 +228,23 @@ class Agent:
 
         # up - is head.x bc head stores x, y point but it is actually in r, c format and subtracting from row goes up
         if head.x-1 >= 0:
+            length = self.getLength(curBoard)
             nextBoard = deepcopy(curBoard)
             # print("up")
             hasEaten = False
             if curBoard[head.x-1][head.y] is 0:
                 # moving snake to next position after not eating food
+                
                 for x in range(len(nextBoard)):
                     for y in range(len(nextBoard[0])):
-                        if nextBoard[x][y] == self.getLength(nextBoard):
+                        if nextBoard[x][y] == length:
                             nextBoard[x][y] = 0
                         elif nextBoard[x][y] > 0:
                             nextBoard[x][y] += 1
                 nextBoard[head.x-1][head.y] = 1
                 up.append(nextBoard)
             elif curBoard[head.x-1][head.y] is -1:
+                
                 # moving snake to next position after eating food
                 hasEaten = True
                 for x in range(len(nextBoard)):
@@ -261,6 +279,7 @@ class Agent:
 
         # down - is head.x bc head stores x, y point but it is actually in r, c format and adding tp column goes down
         if head.x+1 < len(curBoard[0]):
+            length = self.getLength(curBoard)
             nextBoard = deepcopy(curBoard)
             # print("down")
             hasEaten = False
@@ -268,7 +287,7 @@ class Agent:
                 # moving snake to next position after not eating food
                 for x in range(len(nextBoard)):
                     for y in range(len(nextBoard[0])):
-                        if nextBoard[x][y] == self.getLength(nextBoard):
+                        if nextBoard[x][y] == length:
                             nextBoard[x][y] = 0
                         elif nextBoard[x][y] > 0:
                             nextBoard[x][y] += 1
@@ -304,6 +323,9 @@ class Agent:
                         down.append(p)
                 else:
                     down.append(nextBoard)
+
+        
+
         return left, right, up, down
 
     """takes a board and returns a point (x, y) where the head is located (the head has a value of 1)"""
@@ -341,6 +363,7 @@ class Agent:
         counter = 0
         if len(board) == self.boardSize:
             for direction in self.getPossibleMoves(board):
+                # print(direction)
                 if direction:
                     ave = self.getAverageValueOfStates(direction)
                     if ave > currentAve:
@@ -348,13 +371,21 @@ class Agent:
                         currentDecision = counter
                 counter+=1
         return currentDecision
-            
-# a = Agent(3, "V-Iteration", 0.9)
+    
+    def getStates(self):
+        return self.states
+
+    def getValues(self):
+        return self.values
+
+# a = Agent(4, "V-Iteration", 0.9, "saves/states4.npy", "saves/values4.npy")
+
 # # # p = a.getStatesBySize(comb.getStatesFromSize(2))
 # change = 1000
-# while change > 0.1:
-#     change = a.valueIteration()
-#     print("change " + str(change))
-# print(a.decide([[-1, 1, 2], [5, 4, 3], [6, 7, 8]]))
+# # while change > 0.1:
+# #     change = a.valueIteration()
+# #     print("change " + str(change))
+# # print([[0, -1, 6, 7], [1, 0, 5, 8], [2, 3, 4, 9], [13, 12, 11, 10]])
+# print(a.decide([[0, -1, 6, 7], [1, 0, 5, 8], [2, 3, 4, 9], [13, 12, 11, 10]]))
 
-# # bo = comb.makeBoard(2)
+# bo = comb.makeBoard(2)

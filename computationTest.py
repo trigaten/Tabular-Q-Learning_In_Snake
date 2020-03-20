@@ -2,8 +2,8 @@ import Combinatorics as comb
 
 print("Possible states at a given Length, L")
 print("L | Upper Bound | Actual")
-for i in range(1, 6):
-    print(str(i) + " : " + str(comb.computeUpperStateBound(i)) + " | " + str(comb.computeStatesFromSize(i)))
+for i in range(1, 10):
+    print(str(i) + " : " + str("{:e}".format(comb.computeUpperStateBound(i))) + " | " )#+ str(comb.computeStatesFromSize(i)))
 # Possible states at a given Length, L
 # L | Upper Bound | Actual
 # 1 : 1 | 1
