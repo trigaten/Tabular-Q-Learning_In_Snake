@@ -1,13 +1,17 @@
-class StateScorePair:
-    def __init__(state, score):
+class StateScoreNode:
+    def __init__(self, state, score, left = [], right = [], up = [], down = []):
         self.state = state
         self.score = score
+        self.left = left
+        self.right = right
+        self.up = up
+        self.down = down
     
-    def getState():
+    def getState(self):
         return self.state
 
-    def getScore():
+    def getScore(self):
         return self.score
 
-    def setScore(score):
+    def setScore(self, score):
         self.score = score
