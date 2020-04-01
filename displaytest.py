@@ -13,45 +13,39 @@ SCREEN_WIDTH = 1440#NSScreen.mainScreen().frame().size.width
 SCREEN_HEIGHT = 900#NSScreen.mainScreen().frame().size.height
 SCREEN_TITLE = "Snake Game"
 # setting up board stuff
-SQUARE_SIZE = 100
+SQUARE_SIZE = 20
 
 # -------------------
 # CHANGE THIS INFO
-GAME_SIZE = 4
-states = None #"saves/states4.npy"
-values = None #"saves/values4.npy"
+GAME_SIZE = 3
+FOOD_COLOR = (0, 120, 200)
 # -------------------
 
-board = comb.makeBoard(GAME_SIZE)
-FOOD_COLOR = (0, 120, 200)
-# puts head at random location and food opposite that
-Xrand = random.randrange(GAME_SIZE)
-Yrand = random.randrange(GAME_SIZE)
-board[Xrand][Yrand] = 1
-found = False
+rows, cols = (5, 5) 
+boardArray = [[comb.makeBoard(GAME_SIZE) for i in range(cols)] for j in range(rows)] 
+
+for x in range(len(boardArray)):
+    for y in range(len(boardArray[0])): 
+        board = comb.makeBoard(GAME_SIZE)
+        # puts head at random location and food opposite that
+        Xrand = random.randrange(GAME_SIZE)
+        Yrand = random.randrange(GAME_SIZE)
+        board[Xrand][Yrand] = 1
+        found = False
+
+        while not found:
+            X2rand = random.randrange(GAME_SIZE)
+            Y2rand = random.randrange(GAME_SIZE)
+            if X2rand != Xrand or Y2rand != Yrand:
+                board[X2rand][Y2rand] = -1
+                found = True
+        print(board)
+        boardArray[x][y] = board
+
 Still_Going = True
 
-while not found:
-    X2rand = random.randrange(GAME_SIZE)
-    Y2rand = random.randrange(GAME_SIZE)
-    if X2rand != Xrand or Y2rand != Yrand:
-        board[X2rand][Y2rand] = -1
-        found = True
-
-
 # setup agent
-a = Agent.Agent(GAME_SIZE, "V-Iteration", 0.9, states, values)
-# # p = a.getStatesBySize(comb.getStatesFromSize(2))
-change = 1000
-if states is None and values is None:
-    # saves states at init
-    np.save("saves/states" + str(GAME_SIZE), a.getStates())
-    while change > 0.1:
-        change = a.valueIteration()
-        print("change " + str(change))
-        # saves values every complete iteration
-        np.save("saves/values" + str(GAME_SIZE), a.getValues())
-
+a = Agent.Agent(GAME_SIZE, 0.9, "saves/DFL3")
 
 def on_draw(delta_time):
     """
@@ -70,94 +64,105 @@ def on_draw(delta_time):
         # commands. We do NOT need a stop render command.
         
         arcade.start_render()
-        next = a.decide(board)
-
-        if next == -1:
-            Still_Going = False
-        else:
-            head = a.getHeadLocation(board)
-            willEat = False
-            # left
-            if next == 0:
-                if board[head.x][head.y-1] == -1:
-                    willEat = True
+        for x in range(len(boardArray)):
+            for y in range(len(boardArray[0])): 
+                board = boardArray[x][y]
+                next = a.decide(board)
+                print("next " + str(next))
+                if next == -1:
+                    Still_Going = True
                 else:
+                    head = a.getHeadLocation(board)
                     willEat = False
-            # right
-            elif next == 1:
-                if board[head.x][head.y+1] == -1:
-                    willEat = True
-                else:
-                    willEat = False
-            # up
-            elif next == 2:
-                if board[head.x-1][head.y] == -1:
-                    willEat = True
-                else:
-                    willEat = False
-            # down
-            elif next == 3:
-                if board[head.x+1][head.y] == -1:
-                    willEat = True
-                else:
-                    willEat = False
-            print("eat?")
-
-            print(willEat)
-            length = a.getLength(board)
-            for x in range(len(board)):
-                    for y in range(len(board[0])):
-                        if willEat:
-                            if board[x][y] == -1:
-                                board[x][y] = 1
-                            elif board[x][y] > 0:
-                                board[x][y] += 1
+                    # left
+                    if next == 0:
+                        if board[head.x][head.y-1] == -1:
+                            willEat = True
                         else:
-                            if board[x][y] == length:
-                                board[x][y] = 0
-                            elif board[x][y] > 0:
-                                board[x][y] += 1
-                            if next == 0:
-                                board[head.x][head.y-1] = 1
-                            elif next == 1:
-                                board[head.x][head.y+1] = 1
-                            elif next == 2:
-                                board[head.x-1][head.y] = 1
-                            elif next == 3:
-                                board[head.x+1][head.y] = 1
-            
-            if willEat and a.getLength(board) < math.pow(len(board), 2):
-                Xrand = random.randrange(len(board))
-                Yrand = random.randrange(len(board))
-                while board[Xrand][Yrand] > 0:
-                    Xrand = random.randrange(GAME_SIZE)
-                    Yrand = random.randrange(GAME_SIZE)
-                board[Xrand][Yrand] = -1
-    if a.getLength(board) == math.pow(len(board), 2):
-        Still_Going = False
-    print(board)
-    drawBoard(board)
+                            willEat = False
+                    # right
+                    elif next == 1:
+                        if board[head.x][head.y+1] == -1:
+                            willEat = True
+                        else:
+                            willEat = False
+                    # up
+                    elif next == 2:
+                        if board[head.x-1][head.y] == -1:
+                            willEat = True
+                        else:
+                            willEat = False
+                    # down
+                    elif next == 3:
+                        if board[head.x+1][head.y] == -1:
+                            willEat = True
+                        else:
+                            willEat = False
+                    print("eat?")
+
+                    print(willEat)
+                    length = a.getLength(board)
+                    for x in range(len(board)):
+                            for y in range(len(board[0])):
+                                if willEat:
+                                    if board[x][y] == -1:
+                                        board[x][y] = 1
+                                    elif board[x][y] > 0:
+                                        board[x][y] += 1
+                                else:
+                                    if board[x][y] == length:
+                                        board[x][y] = 0
+                                    elif board[x][y] > 0:
+                                        board[x][y] += 1
+                                    if next == 0:
+                                        board[head.x][head.y-1] = 1
+                                    elif next == 1:
+                                        board[head.x][head.y+1] = 1
+                                    elif next == 2:
+                                        board[head.x-1][head.y] = 1
+                                    elif next == 3:
+                                        board[head.x+1][head.y] = 1
+                    
+                    if willEat and a.getLength(board) < math.pow(len(board), 2):
+                        Xrand = random.randrange(len(board))
+                        Yrand = random.randrange(len(board))
+                        while board[Xrand][Yrand] > 0:
+                            Xrand = random.randrange(GAME_SIZE)
+                            Yrand = random.randrange(GAME_SIZE)
+                        board[Xrand][Yrand] = -1
+            if a.getLength(board) == math.pow(len(board), 2):
+                Still_Going = True
+            print(board)
+        drawBoardArray(boardArray)
     
-    
-def drawBoard(board):
-    xSpace = (SCREEN_WIDTH - SQUARE_SIZE * len(board))/2 + SQUARE_SIZE/2
-    ySpace = (SCREEN_HEIGHT - SQUARE_SIZE * len(board[0]))/2 + SQUARE_SIZE/2
+def drawBoardArray(boards):
+    xboards = len(boards)
+    yBoards = len(boards[0])
+    for x in range(len(boards)):
+        for y in range(len(boards[0])): 
+            drawBoard(boards[x][y], 300+ x * SQUARE_SIZE*4, 300+y * SQUARE_SIZE*4)
+
+
+
+def drawBoard(board, x, y):
+    # xSpace = (SCREEN_WIDTH - SQUARE_SIZE * len(board))/2 + SQUARE_SIZE/2
+    # ySpace = (SCREEN_HEIGHT - SQUARE_SIZE * len(board[0]))/2 + SQUARE_SIZE/2
     red = 1
     green = 4
     blue = 9
     for i in range(len(board)):
         for j in range(len(board[0])):
             if board[i][j] == -1:
-                arcade.draw_rectangle_filled(xSpace + i * 100, ySpace + j * 100, 100, 100, FOOD_COLOR)
+                arcade.draw_rectangle_filled(x + i * SQUARE_SIZE, y + j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE, FOOD_COLOR)
             elif board[i][j] == 0:
-                arcade.draw_rectangle_filled(xSpace + i * 100, ySpace + j * 100, 100, 100, (255, 0, 0))
+                arcade.draw_rectangle_filled(x + i * SQUARE_SIZE, y + j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE, (255, 0, 0))
             else:
-                arcade.draw_rectangle_filled(xSpace + i * 100, ySpace + j * 100, 100, 100, (red * (board[i][j]+1), blue * (board[i][j]+1), green * (board[i][j]+1)))
+                arcade.draw_rectangle_filled(x + i * SQUARE_SIZE, y + j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE, (red * (board[i][j]+1), blue * (board[i][j]+1), green * (board[i][j]+1)))
                 # if i-1 > 0 and board[i-1][j] > 0:
                 #     arcade.draw_line(i * 100 + 50, j * 100 + 50, (i-1) * 100 + 50, j * 100 + 50)
                                 
                 
-            arcade.draw_rectangle_outline(xSpace + i * 100, ySpace + j * 100, 100, 100, (255, 0, 0))
+            arcade.draw_rectangle_outline(x + i * SQUARE_SIZE, y + j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE, (255, 0, 0))
             
 def main():
     # Open up our window

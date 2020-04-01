@@ -146,7 +146,7 @@ def getPossibleFoodStates(board):
                 list.append(current)
     return list
 
-"""NON-Essential: takes the size of the snake and the board size and returns number of possible positions for this setup
+"""takes the size of the snake and the board size and returns number of possible positions for this setup
 foodPos is an optional parameter deciding whether the possible locations for food on a given
 board count as additional board states
 RETURNS integer # of states
@@ -161,7 +161,19 @@ def computeStatesFromSingleSizes(numToPlace, boardSize, foodPos=True):
                 counter+= statesAtLength
     return counter
 
-"""takes board size and computes theoretical upper limit of state space"""
+def getStatesFromSingleSizes(numToPlace, boardSize, foodPos=True):
+    states = []
+    for x in range(boardSize):
+            for y in range(boardSize):
+                board = makeBoard(boardSize)
+                board[x][y] = 1
+                statesAtLength = getStatesFromHead(board, Point(x, y), numToPlace, foodPos)
+                for i in statesAtLength:
+                    states.append(i)
+    return states
+
+"""takes board size and computes theoretical upper limit of state space as in accordance with theoretical 
+upper limit formula in paper"""
 def computeUpperStateBound(size):
     total = 0
     sqL = int(math.pow(size, 2))
