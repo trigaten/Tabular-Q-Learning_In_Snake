@@ -17,9 +17,9 @@ SQUARE_SIZE = 100
 
 # -------------------
 # CHANGE THIS INFO
-GAME_SIZE = 4
-states = None #"saves/states4.npy"
-values = None #"saves/values4.npy"
+GAME_SIZE = 3
+states =  "saves/states3.npy"
+values =  "saves/values3.npy"
 # -------------------
 
 board = comb.makeBoard(GAME_SIZE)
