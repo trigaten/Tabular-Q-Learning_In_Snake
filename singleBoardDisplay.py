@@ -17,7 +17,7 @@ SQUARE_SIZE = 100
 
 # -------------------
 # CHANGE THIS INFO
-GAME_SIZE = 3
+GAME_SIZE = 2
 # -------------------
 
 board = comb.makeBoard(GAME_SIZE)
@@ -38,7 +38,7 @@ while not found:
     
 
 # setup agent
-a = Agent.Agent(GAME_SIZE, 0.9, "saves/DFL3")
+a = Agent.Agent(GAME_SIZE, 0.9)
 change = 1000
 
 def on_draw(delta_time):

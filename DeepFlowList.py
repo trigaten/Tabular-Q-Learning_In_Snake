@@ -15,7 +15,7 @@ class DeepFlowList:
         self.columnarSVNList = []
         for i in range(self.squaredSize):
             self.columnarSVNList.append([])
-
+        print("starting construction")
         for i in range(self.squaredSize):
             print(self.squaredSize - i)
             # counts backwards from squaredsize
@@ -52,6 +52,8 @@ class DeepFlowList:
                                 nSVN.addToDown(nextSVN)
                     SVNs.append(nSVN)
                 self.columnarSVNList[currentLength-1] = SVNs
+
+        print("constructed for nextStates")
         # from 0 to one before the last - this part is to see if there are any nextState possible with 
         # the same snake size
         for i in range(self.squaredSize-1):
@@ -69,7 +71,7 @@ class DeepFlowList:
                                 j.addToUp(k)
                             elif move == 3:
                                 j.addToDown(k)
-
+        print("constructed for nextCur states")
         # rate of change when process stops
         theta = 0.1
         loss = 0.2
