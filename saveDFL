@@ -196,6 +196,7 @@ class DeepFlowList:
             for y in range(len(board[0])):
                 if board[x][y] == -1:
                     return Point.Point(x, y)
+        
 
     def getList(self):
         return self.columnarSVNList
