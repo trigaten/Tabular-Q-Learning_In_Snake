@@ -4,6 +4,8 @@ import random
 import Agent
 import math
 import numpy as np
+
+
 # from AppKit import NSScreen #library that gets screen width and height
 # print(NSScreen.mainScreen().frame())
 
@@ -17,37 +19,43 @@ SQUARE_SIZE = 100
 
 # -------------------
 # CHANGE THIS INFO
-GAME_SIZE = 2
+GAME_SIZE = 4
 # -------------------
 
-board = comb.makeBoard(GAME_SIZE)
-FOOD_COLOR = (0, 120, 200)
-# puts head at random location and food opposite that
-Xrand = random.randrange(GAME_SIZE)
-Yrand = random.randrange(GAME_SIZE)
-board[Xrand][Yrand] = 1
-found = False
-Still_Going = True
+def makeInitialBoard(GAME_SIZE):
+    board = comb.makeBoard(GAME_SIZE)
+    # puts head at random location and food opposite that
+    Xrand = random.randrange(GAME_SIZE)
+    Yrand = random.randrange(GAME_SIZE)
+    board[Xrand][Yrand] = 1
+    found = False
+    while not found:
+        X2rand = random.randrange(GAME_SIZE)
+        Y2rand = random.randrange(GAME_SIZE)
+        if X2rand != Xrand or Y2rand != Yrand:
+            board[X2rand][Y2rand] = -1
+            found = True
+    return board
 
-while not found:
-    X2rand = random.randrange(GAME_SIZE)
-    Y2rand = random.randrange(GAME_SIZE)
-    if X2rand != Xrand or Y2rand != Yrand:
-        board[X2rand][Y2rand] = -1
-        found = True
-    
+board = makeInitialBoard(GAME_SIZE)
 
 # setup agent
 a = Agent.Agent(GAME_SIZE, 0.9)
 change = 1000
+FOOD_COLOR = (0, 120, 200)
 
+Still_Going = True
 def on_draw(delta_time):
     """
     Use this function to draw everything to the screen.
     """
     global Still_Going
-    
-    if Still_Going:
+    global board
+    print(board)
+    if not Still_Going and a.getLength(board) == 16:
+        board = makeInitialBoard(GAME_SIZE)
+        Still_Going = True
+    else:
         # print(board)
         # print(a.decide(board))
         
@@ -147,10 +155,11 @@ def main():
     arcade.set_background_color(arcade.color.BLACK_LEATHER_JACKET)
 
     # Tell the computer to call the draw command at the specified interval.
-    arcade.schedule(on_draw, 1/5)
+    arcade.schedule(on_draw, 1/1000)
 
     # Run the program
     arcade.run()
 
 if __name__ == "__main__":
     main()
+

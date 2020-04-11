@@ -110,10 +110,13 @@ class DeepFlowList:
                     if num == -1:
                         if nextState[x][y] != -1:
                             return -1
+
                     # since the snake can only move by 1 square each move, the difference 
                     # between all nextPos and currentPos will be 1 (even including end pos bc we r 
                     # testing from nextState to State)
                     # [[0, 0, -1], [4, 5, 6], [3, 2, 1]], [[0, 0, -1], [5, 6, 1], [4, 3, 2]]
+                    # [[0, 0, 0, 0], [0, 0, 0, -1], [0, 0, 0, 0], [0, 2, 1, 0]]
+                    # [[0, 0, 0, 0], [0, 0, 0, -1], [0, 0, 0, 0], [0, 0, 2, 1]]
                     elif nextState[x][y] > 0:
                         if nextState[x][y] == 1:
                             if num != 0 and num != self.getLength(num):
@@ -124,6 +127,10 @@ class DeepFlowList:
             head1 = self.getHeadLocation(state)
             head2 = self.getHeadLocation(nextState)
             # if head positions more than one space apart
+            if abs(head1.x - head2.x) > 1:
+                return -1
+            if abs(head1.y - head2.y) > 1:
+                return -1
             if abs(head1.x + head1.y - head2.x - head2.y) > 1:
                 return -1
             # left

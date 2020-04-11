@@ -17,7 +17,7 @@ SQUARE_SIZE = 20
 
 # -------------------
 # CHANGE THIS INFO
-GAME_SIZE = 3
+GAME_SIZE = 4
 FOOD_COLOR = (0, 120, 200)
 # -------------------
 
@@ -45,7 +45,7 @@ for x in range(len(boardArray)):
 Still_Going = True
 
 # setup agent
-a = Agent.Agent(GAME_SIZE, 0.9, "saves/DFL3")
+a = Agent.Agent(GAME_SIZE, 0.9, "saves/DFL4")
 
 def on_draw(delta_time):
     """

@@ -2,8 +2,9 @@ import DeepFlowList as DFL
 import numpy as np
 import Point as Point
 import pickle
+import sys
 class Agent:
-    
+    sys.setrecursionlimit(10000)
     """constructor"""
     def __init__(self, boardSize, discountFactor, pathToDFL = None):
         self.boardSize = boardSize
@@ -34,20 +35,21 @@ class Agent:
         for i in list[column]:
             # print(i.getState())
             if i.getState() == board:
-                # print("found")
+                print("found")
                 l, r, u, d = i.getMoves()
-                # print(l)
-                # print(r)
-                # print(u)
-                # print(d)
+
+                print(l)
+                print(r)
+                print(u)
+                print(d)
+                for g in r:
+                    print(g.getState())
                 max = 0
                 sum = 0
                 if len(l) > 0:
-                    # print("leftlen")
+                    # e = 0
                     for j in l:
-                        # print("one")
                         sum += j.getValue()
-                        print(j.getValue())
                     ave = sum / len(l)
                     # print(ave)
                     # print(max)
@@ -103,3 +105,9 @@ class Agent:
 #         print(j.getState())
 #         print(j.getValue())
 #         print(j.down[0].getValue())
+
+# a = Agent(4, 0.9, "saves/DFL4")
+# pos = [[0, 0, 0, 0], [0, 0, 0, -1], [0, 0, 0, 0], [0, 2, 1, 0]]
+# # # # next = [[0, -1, 1, 2], [6, 5, 4, 3], [7, 8, 9, 0], [0, 0, 0, 0]]
+# print(a.decide(pos))
+# # # print(a.deepFlowList.isPossibleNextState(pos, [[0, 0, 0, -1], [0, 0, 0, 1], [0, 0, 0, 0], [0, 0, 0, 0]]))
