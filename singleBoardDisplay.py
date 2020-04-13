@@ -19,7 +19,7 @@ SQUARE_SIZE = 100
 
 # -------------------
 # CHANGE THIS INFO
-GAME_SIZE = 4
+GAME_SIZE = 5
 # -------------------
 
 def makeInitialBoard(GAME_SIZE):
@@ -52,9 +52,11 @@ def on_draw(delta_time):
     global Still_Going
     global board
     print(board)
-    if not Still_Going and a.getLength(board) == 16:
+    if not Still_Going and a.getLength(board) == math.pow(len(board), 2):
         board = makeInitialBoard(GAME_SIZE)
         Still_Going = True
+
+        print("---------")
     else:
         # print(board)
         # print(a.decide(board))

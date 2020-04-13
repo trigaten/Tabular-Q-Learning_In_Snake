@@ -18,7 +18,6 @@ class DeepFlowList:
             self.columnarSVNList.append([])
         print("starting construction")
         for i in range(self.squaredSize):
-            print(self.squaredSize - i)
             # counts backwards from squaredsize
             currentLength = self.squaredSize - i
             # if this is the last column (states where the snake has won)
@@ -27,54 +26,33 @@ class DeepFlowList:
                 lastColumnStates = comb.getStatesFromSingleSizes(currentLength-1, size)
                 for j in lastColumnStates:
                     # because these are possible final states that win the game, their value is assigned as 1
-                    copyState = deepcopy(j)
-                    node = deepcopy(SVN.StateValueNode(copyState, 1))
+                    node = deepcopy(SVN.StateValueNode(j, 100))
                     self.columnarSVNList[currentLength-1].append(node)
-                    self.SVNDict[copyState] = node
-                    # print("left" + str(len(node.left)))
+                    self.SVNDict[str(j)] = node
             else:
                 states = comb.getStatesFromSingleSizes(currentLength-1, size)
                 SVNs = []
-                # print(states)
                 for j in states:
-                    # print("currentViewingState " + str(j))
-                    nSVN = deepcopy(SVN.StateValueNode(deepcopy(j), 0))
-                    for nextSVN in self.columnarSVNList[currentLength]:
-                        # print("----+-----")
-                        # print(nextSVN.getState())
-                        # will be a value 0, 1, 2, 3 or -1
-                        move = self.isPossibleNextState(j, nextSVN.getState())
-                        if move > -1:
-                            if move == 0:
-                                nSVN.addToLeft(nextSVN)
-                            elif move == 1:
-                                nSVN.addToRight(nextSVN)
-                            elif move == 2:
-                                nSVN.addToUp(nextSVN)
-                            elif move == 3:
-                                nSVN.addToDown(nextSVN)
+                    nSVN = deepcopy(SVN.StateValueNode(j, -0.001))
                     SVNs.append(nSVN)
+                    self.SVNDict[str(j)] = nSVN
                 self.columnarSVNList[currentLength-1] = SVNs
+        print(self.columnarSVNList)
 
-        print("constructed for nextStates")
-        # from 0 to one before the last - this part is to see if there are any nextState possible with 
-        # the same snake size
         for i in range(self.squaredSize-1):
-            for j in self.columnarSVNList[i]:
-                for k in self.columnarSVNList[i]:
-                    # print(k)
-                    if j != k:
-                        move = self.isPossibleNextState(j.getState(), k.getState())
-                        if move > -1:
-                            if move == 0:
-                                j.addToLeft(k)
-                            elif move == 1:
-                                j.addToRight(k)
-                            elif move == 2:
-                                j.addToUp(k)
-                            elif move == 3:
-                                j.addToDown(k)
-        print("constructed for nextCur states")
+            # in the construction of the DFl, the SVNs for the endgame winning states are created first
+            columnSVNs = self.columnarSVNList[i]
+            for j in columnSVNs:
+                l, r, u, d = self.getPossibleMoves(j.getState())
+                for m in l:
+                    j.addToLeft(self.SVNDict[str(m)])
+                for m in r:
+                    j.addToRight(self.SVNDict[str(m)])
+                for m in u:
+                    j.addToUp(self.SVNDict[str(m)])
+                for m in d:
+                    j.addToDown(self.SVNDict[str(m)])
+
         # rate of change when process stops
         theta = 0.1
         loss = 0.2
@@ -87,18 +65,7 @@ class DeepFlowList:
                     # print("------------------")
                     # print("state" + str(j.getState()))
                     a, b, c, d = j.getMoves()
-                    # print("left")
-                    # for p in a:
-                    #     print(p.getState())
-                    # print("right")
-                    # for p in b:
-                    #     print(p.getState())
-                    # print("up")
-                    # for p in c:
-                    #     print(p.getState())
-                    # print("down")
-                    # for p in d:
-                    #     print(p.getState())
+                   
 
     """takes two states (2d board arrays) and returns 0, 1, 2, 3 (lrud) for which direction the next state 
     is as a move or returns -1 if nextState is not an actual possible next state"""
@@ -117,9 +84,6 @@ class DeepFlowList:
                     # since the snake can only move by 1 square each move, the difference 
                     # between all nextPos and currentPos will be 1 (even including end pos bc we r 
                     # testing from nextState to State)
-                    # [[0, 0, -1], [4, 5, 6], [3, 2, 1]], [[0, 0, -1], [5, 6, 1], [4, 3, 2]]
-                    # [[0, 0, 0, 0], [0, 0, 0, -1], [0, 0, 0, 0], [0, 2, 1, 0]]
-                    # [[0, 0, 0, 0], [0, 0, 0, -1], [0, 0, 0, 0], [0, 0, 2, 1]]
                     elif nextState[x][y] > 0:
                         if nextState[x][y] == 1:
                             if num != 0 and num != self.getLength(num):
@@ -207,16 +171,10 @@ class DeepFlowList:
         loss = 0
         # stats at last index
         for x in reversed(range(len(self.columnarSVNList))):
-            # print("column " + str(x))
             currentCol = self.columnarSVNList[x]
             for i in currentCol:
-                # print("current state " + str(i.getState()))
-                # print("current value " + str(i.getValue()))
                 if i.hasNextStates():
-
-                    # print("HAS")
                     l, r, u, d = i.getMoves()
-                    # print(str(l) + str(r) + str(u), str(d))
                     sumOfValues = 0
                     numOfPossibleNextStates = 0
                     for j in l:
@@ -247,8 +205,203 @@ class DeepFlowList:
                     # print(i.getState())
                     # print(i.getValue())
         return loss
-                    
 
+    """takes a 2d board and returns four arrays for lrud possible moves"""
+    def getPossibleMoves(self, curBoard):
+        left = []
+        right = []
+        up = []
+        down = []
+        head = self.getHeadLocation(curBoard)
+        # left - is head.y bc head stores x, y point but it is actually in r, c format and subtracting from column goes to left
+        if head.y-1 >= 0:
+            length = self.getLength(curBoard)
+            # print("left")
+            hasEaten = False
+            nextBoard = deepcopy(curBoard)
+            if curBoard[head.x][head.y-1] is 0 :
+                # moving snake to next position after not eating food
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == length:
+                            nextBoard[x][y] = 0
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                nextBoard[head.x][head.y-1] = 1
+                left.append(nextBoard)
+            elif curBoard[head.x][head.y-1] is -1:
+                # moving snake to next position after eating food
+                hasEaten = True
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == self.getLength(nextBoard):
+                            nextBoard[x][y] += 1
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                        elif nextBoard[x][y] == -1:
+                            nextBoard[x][y] = 1
+            elif curBoard[head.x][head.y-1] == self.getLength(curBoard) and self.getLength(curBoard) >= 4: #>4 to assure that tail is not the exact next part
+                # moving snake to next position after moving to former tail position
+                length = self.getLength(nextBoard)
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == length:
+                            nextBoard[x][y] = 1
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                left.append(nextBoard)
+            if hasEaten:
+                # possbile stochastic next states (just different placements of the food)
+                if self.getLength(nextBoard) != math.pow(len(nextBoard), 2):
+                    ps = comb.getPossibleFoodStates(nextBoard)
+                    for p in ps:
+                        left.append(p)
+                else:
+                    left.append(nextBoard)
+                    
+        # right - is head.y bc head stores x, y point but it is actually in r, c format and adding to column goes to right
+        if head.y+1 < len(curBoard):
+            length = self.getLength(curBoard)
+            nextBoard = deepcopy(curBoard)
+            hasEaten = False
+            if curBoard[head.x][head.y+1] is 0:
+                # moving snake to next position after not eating food
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == length:
+                            nextBoard[x][y] = 0
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                nextBoard[head.x][head.y+1] = 1
+                right.append(nextBoard)
+            elif curBoard[head.x][head.y+1] is -1:
+                # moving snake to next position after eating food
+                hasEaten = True
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        # if is tail position
+                        if nextBoard[x][y] == self.getLength(nextBoard):
+                            nextBoard[x][y] += 1
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                        elif nextBoard[x][y] == -1:
+                            nextBoard[x][y] = 1
+            elif curBoard[head.x][head.y+1] == self.getLength(curBoard) and self.getLength(curBoard) >= 4: #>4 to assure that tail is not the exact next part
+                # moving snake to next position after moving to former tail position
+                length = self.getLength(nextBoard)
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == length:
+                            nextBoard[x][y] = 1
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                right.append(nextBoard)
+            if hasEaten:
+                # possible stochastic next states (just different placements of the food)
+                if self.getLength(nextBoard) != math.pow(len(nextBoard), 2):
+                    ps = comb.getPossibleFoodStates(nextBoard)
+                    for p in ps:
+                        right.append(p)
+                else:
+                    right.append(nextBoard)
+
+        # up - is head.x bc head stores x, y point but it is actually in r, c format and subtracting from row goes up
+        if head.x-1 >= 0:
+            length = self.getLength(curBoard)
+            nextBoard = deepcopy(curBoard)
+            # print("up")
+            hasEaten = False
+            if curBoard[head.x-1][head.y] is 0:
+                # moving snake to next position after not eating food
+                
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == length:
+                            nextBoard[x][y] = 0
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                nextBoard[head.x-1][head.y] = 1
+                up.append(nextBoard)
+            elif curBoard[head.x-1][head.y] is -1:
+                
+                # moving snake to next position after eating food
+                hasEaten = True
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == self.getLength(nextBoard):
+                            nextBoard[x][y] += 1
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                        elif nextBoard[x][y] == -1:
+                            nextBoard[x][y] = 1
+            elif curBoard[head.x-1][head.y] == self.getLength(curBoard) and self.getLength(curBoard) >= 4: #>4 to assure that tail is not the exact next part
+                # moving snake to next position after moving to former tail position
+                length = self.getLength(nextBoard)
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == length:
+                            nextBoard[x][y] = 1
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                up.append(nextBoard)
+
+            if hasEaten:
+                # possbile stochastic next states (just different placements of the food)
+                if self.getLength(nextBoard) != math.pow(len(nextBoard), 2):
+                    ps = comb.getPossibleFoodStates(nextBoard)
+                    for p in ps:
+                        up.append(p)
+                else:
+                    up.append(nextBoard)
+
+        # down - is head.x bc head stores x, y point but it is actually in r, c format and adding tp column goes down
+        if head.x+1 < len(curBoard[0]):
+            length = self.getLength(curBoard)
+            nextBoard = deepcopy(curBoard)
+            # print("down")
+            hasEaten = False
+            if curBoard[head.x+1][head.y] is 0:
+                # moving snake to next position after not eating food
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == length:
+                            nextBoard[x][y] = 0
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                nextBoard[head.x+1][head.y] = 1
+                down.append(nextBoard)
+            elif curBoard[head.x+1][head.y] is -1:
+                # moving snake to next position after eating food
+                hasEaten = True
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == self.getLength(nextBoard):
+                            nextBoard[x][y] += 1
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                        elif nextBoard[x][y] == -1:
+                            nextBoard[x][y] = 1
+            elif curBoard[head.x+1][head.y] == self.getLength(curBoard) and self.getLength(curBoard) >= 4: #>4 to assure that tail is not the exact next part
+                # moving snake to next position after moving to former tail position
+                length = self.getLength(nextBoard)
+                for x in range(len(nextBoard)):
+                    for y in range(len(nextBoard[0])):
+                        if nextBoard[x][y] == length:
+                            nextBoard[x][y] = 1
+                        elif nextBoard[x][y] > 0:
+                            nextBoard[x][y] += 1
+                down.append(nextBoard)
+
+            if hasEaten:
+                # possible stochastic next states (just different placements of the food)
+                if self.getLength(nextBoard) != math.pow(len(nextBoard), 2):
+                    ps = comb.getPossibleFoodStates(nextBoard)
+                    for p in ps:
+                        down.append(p)
+                else:
+                    down.append(nextBoard)
+
+        return left, right, up, down
 
 
 

@@ -16,6 +16,7 @@ class Agent:
         else:
             with open(pathToDFL, 'rb') as saveData:
                 self.deepFlowList = pickle.load(saveData)
+
     def getNextPossibleSVNs(self, board):
         list = self.deepFlowList.getList()
         snakeLength = self.getLength(board)
@@ -25,9 +26,8 @@ class Agent:
                 return i.getMoves()
         return None
 
-
     def decide(self, board):
-        print("deciding")
+        # print("deciding")
         list = self.deepFlowList.getList()
         snakeLength = self.getLength(board)
         column = snakeLength-1
@@ -35,16 +35,15 @@ class Agent:
         for i in list[column]:
             # print(i.getState())
             if i.getState() == board:
-                print("found")
+                # print("found")
                 l, r, u, d = i.getMoves()
 
-                print(l)
-                print(r)
-                print(u)
-                print(d)
-                for g in r:
-                    print(g.getState())
-                max = 0
+                # print(l)
+                # print(r)
+                # print(u)
+                # print(d)
+
+                max = -1000
                 sum = 0
                 if len(l) > 0:
                     # e = 0
@@ -106,8 +105,27 @@ class Agent:
 #         print(j.getValue())
 #         print(j.down[0].getValue())
 
-# a = Agent(4, 0.9, "saves/DFL4")
-# pos = [[0, 0, 0, 0], [0, 0, 0, -1], [0, 0, 0, 0], [0, 2, 1, 0]]
-# # # # next = [[0, -1, 1, 2], [6, 5, 4, 3], [7, 8, 9, 0], [0, 0, 0, 0]]
+# a = Agent(3, 0.9)
+# pos = [[-1, 0, 0], [0, 0, 0], [0, 1, 0]]
+# # # # # # # next = [[0, -1, 1, 2], [6, 5, 4, 3], [7, 8, 9, 0], [0, 0, 0, 0]]
+# # print(a.getNextPossibleSVNs([[-1, 0, 0], [1, 2, 3], [0, 0, 4]]))
+# # m = a.getNextPossibleSVNs([[-1, 0, 0], [1, 2, 3], [0, 0, 4]])
+# # av = 0
+# # for p in m[2]:
+# #     print(p.getValue())
+# #     av += p.getValue() / 4
+# # print("---- " + str(av))
+# # for p in m[3]:
+# #     print(p.getValue())
+# # aendpos = [[7, 6, 1],[8,5,2],[9,4,3]]
+# # endpos = [[6, 5, -1],[7,4,1],[8,3,2]]
+
+# # dic = a.deepFlowList.SVNDict
+# # print(dic[str(endpos)])
 # print(a.decide(pos))
-# # # print(a.deepFlowList.isPossibleNextState(pos, [[0, 0, 0, -1], [0, 0, 0, 1], [0, 0, 0, 0], [0, 0, 0, 0]]))
+# print(a.getNextPossibleSVNs(pos))
+# for i in a.getNextPossibleSVNs(pos):
+#     print("====")
+#     for j in i:
+#         print(j.getState())
+#         print(j.getValue())
