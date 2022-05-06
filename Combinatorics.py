@@ -1,5 +1,5 @@
 """A bunch of code for doing combinatorics problems on the snake game"""
-from Point import Point
+from point import Point
 import math
 from copy import copy, deepcopy
 

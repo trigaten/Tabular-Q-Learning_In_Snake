@@ -1,7 +1,7 @@
 import Combinatorics as comb
 import StateScorePair as scp
 import numpy as np
-import Point as Point
+import point as Point
 from copy import copy, deepcopy
 import math
 
